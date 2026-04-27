@@ -1,0 +1,52 @@
+[project]
+name = "msi"
+version = "0.1.0"
+description = "Magic state injection on ibm_fez, replicating Kim et al. (arXiv:2412.01446)"
+readme = "README.md"
+requires-python = ">=3.11"
+
+dependencies = [
+    # Core: Qiskit 2.x (we will use `with qc.if_test(...)` for dynamic circuits;
+    # the deprecated `.c_if()` has been removed in 2.x)
+    "qiskit>=2.0",
+    # IBM Runtime provides SamplerV2 + FakeFezV2 (the simulator mirror of
+    # ibm_fez, used for local development before hitting the real device)
+    "qiskit-ibm-runtime>=0.30",
+    # Plotting
+    "matplotlib>=3.8",
+    "numpy>=1.26",
+]
+
+[project.optional-dependencies]
+# Install with: pip install -e ".[sim]"
+# Needed once we tackle the threshold simulation (paper's Fig. 2) — Stim
+# builds the circuit-level noise model and PyMatching decodes via MWPM.
+sim = [
+    "stim>=1.14",
+    "pymatching>=2.2",
+]
+# Install with: pip install -e ".[dev]"
+dev = [
+    "pytest>=8",
+    "mypy>=1.10",
+    "ruff>=0.5",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/msi"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = false
+ignore_missing_imports = true
