@@ -1,33 +1,20 @@
 """
 Logical-state tomography for the MSI protocol.
 
-Each of the three circuits (X, Y, Z basis) measures the data qubits in a
-rotated basis so that parity of specific cbits yields the expectation value of
-the corresponding logical operator.
-
-DBIT_MAPPING (from injection.py):
-    qubit 0  → cbit 10      qubit 16 → cbit 17
-    qubit 2  → cbit 11      qubit 20 → cbit 18
-    qubit 5  → cbit 12      qubit 22 → cbit 19
-    qubit 7  → cbit 13      qubit 23 → cbit 20
-    qubit 8  → cbit 14
-    qubit 13 → cbit 15
-    qubit 14 → cbit 16
-
-Logical operators and their measurement cbits:
-    Z_L = Z5 Z13 Z20  → cbits (12, 15, 18)   [Z-basis circuit]
-    X_L = X20 X22 X23 → cbits (18, 19, 20)   [X-basis circuit, H applied]
-    Y_L = iX_L Z_L    → cbits (12, 15, 18, 19, 20)  [Y-basis circuit, S†H applied]
+Qubit 14 (the injection qubit) directly represents the logical state.
+It is measured in the logical basis for each circuit:
+    X circuit: H then measure   → cbit 16 gives X_L
+    Y circuit: S†H then measure → cbit 16 gives Y_L
+    Z circuit: measure directly → cbit 16 gives Z_L
 """
 
 from __future__ import annotations
 
 import numpy as np
 
-# cbits that contribute to each logical parity measurement
-Z_L_CBITS: tuple[int, ...] = (12, 15, 18)        # Z5 Z13 Z20
-X_L_CBITS: tuple[int, ...] = (18, 19, 20)        # X20 X22 X23
-Y_L_CBITS: tuple[int, ...] = (12, 15, 18, 19, 20) # Y_L = X_L · Z_L
+Z_L_CBITS: tuple[int, ...] = (16, 13, 19)      # Z14 · Z7  · Z22
+X_L_CBITS: tuple[int, ...] = (16, 15, 17)      # X14 · X13 · X16
+Y_L_CBITS: tuple[int, ...] = (16, 13, 19, 15, 17)  # Y_L = Z_L · X_L
 
 
 def _bit(bitstring: str, cbit: int) -> int:

@@ -203,8 +203,7 @@ def plot_layout(
     )
 
     ax.set_title(
-        "Distance-3 rotated surface code on ibm_fez\n"
-        "(qubit labels per paper Fig. S2)",
+        "Distance-3 rotated surface code on ibm_fez\n",
         fontsize=12,
     )
 

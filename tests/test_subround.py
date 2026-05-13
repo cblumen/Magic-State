@@ -18,6 +18,8 @@ SHOTS = 1
 def run_syndrome(prepend: QuantumCircuit | None = None) -> str:
     """Run full_round() and return the dominant syndrome bitstring."""
     qc = QuantumCircuit(25, N_CBITS)
+    for q in DATA_QUBITS:
+        qc.h(q)  # prepare |+> state on all data qubits to test z
     if prepend is not None:
         qc.compose(prepend, inplace=True)
     qc.compose(full_round(), inplace=True)

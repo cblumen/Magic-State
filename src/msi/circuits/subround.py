@@ -57,7 +57,7 @@ def bulk_measure(
     if draw:
         qc.measure(D, 0)  # placeholder for visualization; not a real CBIT assignment
     else:
-        qc.measure(D, CBIT[tuple(sorted([E, C, G, A]))][0]) 
+        qc.measure(D, CBIT[tuple(sorted([E, C, G, A]))][0])
 
     # reset and measure H
     qc.reset(H)

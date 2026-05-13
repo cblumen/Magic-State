@@ -17,6 +17,7 @@ env/
 # Data and outputs
 data/
 figures/
+results/
 
 # Environment variables
 .env

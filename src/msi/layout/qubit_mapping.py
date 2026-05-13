@@ -104,7 +104,7 @@ CENTRAL_DATA_QUBIT: int = 14
 # Data qubits that the heavy-hex embedding forces us to "collapse" each
 # round via a weight-1 Z measurement. They each have exactly one physical
 # neighbor, which is the syndrome qubit that performs the measurement.
-WEIGHT_ONE_DATA_QUBITS: list[int] = [13, 23]
+WEIGHT_ONE_DATA_QUBITS: list[int] = [0,2]
 
 # Which syndrome qubit performs the weight-1 Z measurement on each
 # collapsed data qubit. Built from the heavy-hex connectivity below.
@@ -248,3 +248,19 @@ def get_layout() -> Layout:
         weight_one_syndromes=dict(WEIGHT_ONE_SYNDROMES),
         edges=tuple(EDGES),
     )
+
+
+# ======================================================================
+# ibm_fez physical qubit translation
+# ======================================================================
+# Maps paper's Fig. S2 labels (0–24) to actual ibm_fez hardware qubit indices.
+# Fill in the values from Fig. S2 before running on real hardware or FakeFezV2.
+PAPER_TO_FEZ: dict[int, int] = {
+    0:  91,  1:  98,  2:  111,  3:  90,  4:  110,
+    5:  69,  6:  78,  7:  89,  8:  109,  9:  68,
+    10: 88, 11: 108, 12: 57, 13: 67, 14: 87,
+    15: 97, 16: 107, 17: 66, 18: 86, 19: 106,
+    20: 65, 21: 77, 22: 85, 23: 105, 24: 117,
+}
+
+FEZ_INITIAL_LAYOUT: list[int] = [PAPER_TO_FEZ[i] for i in range(25)]

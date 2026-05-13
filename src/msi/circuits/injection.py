@@ -48,8 +48,8 @@ def build_msi_circuit(theta: float, phi: float, logical_basis: str) -> QuantumCi
     Returns:
         A 25-qubit QuantumCircuit ready for execution.
     """
-   
-    
+
+
     qc = QuantumCircuit(25, N_CBITS+11)  # +11 for final data qubit measurements
 
     # Step 1: initialization
@@ -60,12 +60,11 @@ def build_msi_circuit(theta: float, phi: float, logical_basis: str) -> QuantumCi
     for q in INIT_PLUS_STATES:
         qc.reset(q)
         qc.h(q)
-    qc.reset(MAGIC_STATE_QUBIT)
     qc.u(theta, phi, 0, MAGIC_STATE_QUBIT)
     # Step 2: syndrome extraction
     qc.compose(full_round(), inplace=True)
 
-    
+
 
     # Step 3: logical measurement
     qc.compose(build_logical_measurement_circuit(logical_basis), inplace=True)
@@ -76,59 +75,22 @@ def build_msi_circuit(theta: float, phi: float, logical_basis: str) -> QuantumCi
 def build_logical_measurement_circuit(logical_basis: str) -> QuantumCircuit:
     if logical_basis not in ("X", "Y", "Z"):
         raise ValueError(f"Invalid logical basis: {logical_basis}. Must be 'X', 'Y', or 'Z'.")
-    
-    qc = QuantumCircuit(25, N_CBITS+11)  # +11 for final data qubit measurements
-    Z_L = {5,13,20}
-    X_L = {20,22,23}
 
-    result = 0
+    qc = QuantumCircuit(25, N_CBITS+11)
+
+    # Central qubit measured in the logical basis
     if logical_basis == "X":
-        # Step 3: logical measurement of X_L = X20X22X23
-        for q in X_L:
-            qc.h(q)
-            qc.measure(q, DBIT_MAPPING[q])
-        
-        z_remaining = INIT_ZERO_STATES - X_L
-        x_remaining = INIT_PLUS_STATES - X_L
-
-        for q in z_remaining:
-            qc.measure(q, DBIT_MAPPING[q])
-        for q in x_remaining:
-            qc.h(q)
-            qc.measure(q, DBIT_MAPPING[q])
-        
+        qc.h(MAGIC_STATE_QUBIT)
     elif logical_basis == "Y":
-        # Step 3: logical measurement in Y_L = X_LZ_L = X5X13X20Z5Z13Z20
-        for q in X_L:
-            qc.sdg(q)
-            qc.h(q)
-            qc.measure(q, DBIT_MAPPING[q])
-        
-        for q in Z_L - X_L:
-            qc.sdg(q)
-            qc.h(q)
-            qc.measure(q, DBIT_MAPPING[q])
-        
-        z_remaining = INIT_ZERO_STATES - X_L
-        x_remaining = INIT_PLUS_STATES - X_L
+        qc.sdg(MAGIC_STATE_QUBIT)
+        qc.h(MAGIC_STATE_QUBIT)
+    qc.measure(MAGIC_STATE_QUBIT, DBIT_MAPPING[MAGIC_STATE_QUBIT])
 
-        for q in z_remaining:
-            qc.measure(q, DBIT_MAPPING[q])
-        for q in x_remaining:
-            qc.h(q)
-            qc.measure(q, DBIT_MAPPING[q])
+    # All other data qubits measured in their initialization basis
+    for q in INIT_ZERO_STATES:
+        qc.measure(q, DBIT_MAPPING[q])
+    for q in INIT_PLUS_STATES:
+        qc.h(q)
+        qc.measure(q, DBIT_MAPPING[q])
 
-    elif logical_basis == "Z":
-        # Step 3: logical measurement of Z_L = Z5Z13Z20
-        for q in Z_L:
-            qc.measure(q, DBIT_MAPPING[q])
-        
-        z_remaining = INIT_ZERO_STATES - (X_L | Z_L)
-        x_remaining = INIT_PLUS_STATES - (X_L | Z_L)
-
-        for q in z_remaining:
-            qc.measure(q, DBIT_MAPPING[q])
-        for q in x_remaining:
-            qc.h(q)
-            qc.measure(q, DBIT_MAPPING[q])
     return qc
